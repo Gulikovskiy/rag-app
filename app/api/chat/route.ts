@@ -12,7 +12,9 @@ import { retrieveChunks } from "@/lib/retrieve";
 
 export const runtime = "nodejs";
 
-function isMessageArray(value: unknown): value is Array<UIMessage | LegacyMessage> {
+function isMessageArray(
+  value: unknown,
+): value is Array<UIMessage | LegacyMessage> {
   return Array.isArray(value);
 }
 
@@ -61,7 +63,9 @@ export async function POST(request: Request) {
   }
 
   const relevantChunks = await retrieveChunks(question);
-  const modelMessages: ModelMessage[] = messages.every((message) => "parts" in message)
+  const modelMessages: ModelMessage[] = messages.every(
+    (message) => "parts" in message,
+  )
     ? await convertToModelMessages(messages)
     : [{ role: "user", content: question }];
   const result = streamText({
