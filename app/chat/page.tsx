@@ -23,8 +23,9 @@ export default function ChatPage() {
     }),
   });
   const [input, setInput] = useState("");
-  const [sources, setSources] = useState<Array<{ id: number; content: string; similarity: number }>>([]);
-  console.log('sources: ',sources)
+  const [sources, setSources] = useState<
+    Array<{ id: number; content: string; similarity: number }>
+  >([]);
 
   const isLoading = status === "submitted" || status === "streaming";
 
@@ -42,25 +43,25 @@ export default function ChatPage() {
   // }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-  event.preventDefault();
-  const question = input.trim();
-  if (!question || isLoading) return;
+    event.preventDefault();
+    const question = input.trim();
+    if (!question || isLoading) return;
 
-  setInput("");
-  setSources([]); // clear previous sources
+    setInput("");
+    setSources([]); // clear previous sources
 
-  // Fetch sources in parallel with the chat
-  fetch("/api/sources", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ question }),
-  })
-    .then((r) => r.json())
-    .then((data: { sources: typeof sources }) => setSources(data.sources))
-    .catch(console.error);
+    // Fetch sources in parallel with the chat
+    fetch("/api/sources", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question }),
+    })
+      .then((r) => r.json())
+      .then((data: { sources: typeof sources }) => setSources(data.sources))
+      .catch(console.error);
 
-  await sendMessage({ text: question });
-}
+    await sendMessage({ text: question });
+  }
 
   return (
     <main className="flex min-h-dvh flex-1 items-center justify-center bg-background px-6 py-16 font-sans text-foreground sm:px-8 lg:px-12">
@@ -83,45 +84,52 @@ export default function ChatPage() {
                 </div>
               ) : (
                 messages.map((message, index) => {
-  const isLastAssistant =
-    message.role === "assistant" &&
-    index === messages.findLastIndex((m) => m.role === "assistant");
+                  const isLastAssistant =
+                    message.role === "assistant" &&
+                    index ===
+                      messages.findLastIndex((m) => m.role === "assistant");
 
-  return (
-    <div key={message.id}>
-      {/* existing message bubble */}
-      <div className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
-        <div className={`max-w-2xl rounded-2xl px-5 py-4 text-lg font-medium leading-relaxed ${
-          message.role === "user"
-            ? "bg-primary text-primary-foreground"
-            : "border border-border bg-surface text-foreground"
-        }`}>
-          <MessageText parts={message.parts} />
-        </div>
-      </div>
+                  return (
+                    <div key={message.id}>
+                      {/* existing message bubble */}
+                      <div
+                        className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+                      >
+                        <div
+                          className={`max-w-2xl rounded-2xl px-5 py-4 text-lg font-medium leading-relaxed ${
+                            message.role === "user"
+                              ? "bg-primary text-primary-foreground"
+                              : "border border-border bg-surface text-foreground"
+                          }`}
+                        >
+                          <MessageText parts={message.parts} />
+                        </div>
+                      </div>
 
-      {/* sources — only after the last assistant message */}
-      {isLastAssistant && sources.length > 0 && (
-        <div className="mt-3 space-y-2 px-1">
-          <p className="text-sm font-semibold text-muted">Sources used:</p>
-          {sources.map((source) => (
-            <div
-              key={source.id}
-              className="rounded-xl border border-border bg-surface px-4 py-3"
-            >
-              <p className="text-xs font-semibold text-muted">
-                {(source.similarity * 100).toFixed(1)}% match
-              </p>
-              <p className="mt-1 line-clamp-3 text-sm text-foreground">
-                {source.content}
-              </p>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-})
+                      {/* sources — only after the last assistant message */}
+                      {isLastAssistant && sources.length > 0 && (
+                        <div className="mt-3 space-y-2 px-1">
+                          <p className="text-sm font-semibold text-muted">
+                            Sources used:
+                          </p>
+                          {sources.map((source) => (
+                            <div
+                              key={source.id}
+                              className="rounded-xl border border-border bg-surface px-4 py-3"
+                            >
+                              <p className="text-xs font-semibold text-muted">
+                                {(source.similarity * 100).toFixed(1)}% match
+                              </p>
+                              <p className="mt-1 line-clamp-3 text-sm text-foreground">
+                                {source.content}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
               )}
             </div>
 

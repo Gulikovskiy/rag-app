@@ -25,9 +25,9 @@ function UploadIcon() {
 
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
-  const [status, setStatus] = useState<"idle" | "uploading" | "success" | "error">(
-    "idle",
-  );
+  const [status, setStatus] = useState<
+    "idle" | "uploading" | "success" | "error"
+  >("idle");
   const [message, setMessage] = useState("");
 
   function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
