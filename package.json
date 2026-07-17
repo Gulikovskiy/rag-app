@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@ai-sdk/openai": "^4.0.9",
+    "@ai-sdk/react": "^4.0.32",
     "@types/pg": "^8.20.0",
     "ai": "^7.0.18",
     "dotenv": "^17.4.2",

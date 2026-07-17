@@ -1,6 +1,8 @@
 "use client";
 
-import type { FormEvent } from "react";
+import Link from "next/link";
+import type { ChangeEvent, FormEvent } from "react";
+import { useState } from "react";
 
 function UploadIcon() {
   return (
@@ -22,13 +24,60 @@ function UploadIcon() {
 }
 
 export default function Home() {
-  function handleFileChange() {
-    // TODO: Store the selected document and prepare it for ingestion.
+  const [file, setFile] = useState<File | null>(null);
+  const [status, setStatus] = useState<"idle" | "uploading" | "success" | "error">(
+    "idle",
+  );
+  const [message, setMessage] = useState("");
+
+  function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
+    setFile(event.target.files?.[0] ?? null);
+    setStatus("idle");
+    setMessage("");
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    // TODO: Send the document and question to the chat/retrieval flow.
+
+    if (!file) {
+      setStatus("error");
+      setMessage("Choose a .txt document first.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    setStatus("uploading");
+    setMessage("");
+
+    try {
+      const response = await fetch("/api/ingest", {
+        method: "POST",
+        body: formData,
+      });
+      const result: unknown = await response.json();
+
+      if (!response.ok) {
+        const error =
+          typeof result === "object" &&
+          result !== null &&
+          "error" in result &&
+          typeof result.error === "string"
+            ? result.error
+            : "Failed to ingest document.";
+
+        throw new Error(error);
+      }
+
+      setStatus("success");
+      setMessage("Document ingested. You can ask questions about it now.");
+    } catch (error) {
+      setStatus("error");
+      setMessage(
+        error instanceof Error ? error.message : "Failed to ingest document.",
+      );
+    }
   }
 
   return (
@@ -39,7 +88,7 @@ export default function Home() {
             Ask your document
           </h1>
           <p className="text-lg font-medium text-muted sm:text-xl">
-            Upload a text file or PDF, then ask a question about it.
+            Upload a text file, then ask questions about it.
           </p>
         </header>
 
@@ -50,7 +99,7 @@ export default function Home() {
           <div className="space-y-8">
             <label className="group flex min-h-72 cursor-pointer flex-col items-center justify-center gap-6 rounded-3xl border-2 border-dashed border-border-strong bg-surface-muted px-6 py-12 text-center transition-colors hover:border-accent-foreground focus-within:border-accent-foreground focus-within:ring-4 focus-within:ring-accent">
               <input
-                accept=".txt,.pdf,text/plain,application/pdf"
+                accept=".txt,text/plain"
                 className="sr-only"
                 onChange={handleFileChange}
                 type="file"
@@ -63,32 +112,39 @@ export default function Home() {
                   Drop your file here, or click to browse
                 </span>
                 <span className="block text-lg font-medium text-muted">
-                  Accepts .txt or .pdf, up to 10MB
+                  {file ? file.name : "Accepts .txt files up to 10MB"}
                 </span>
               </span>
             </label>
 
-            <div className="space-y-4">
-              <label
-                className="block text-lg font-semibold text-foreground"
-                htmlFor="question"
+            {message ? (
+              <p
+                className={`rounded-2xl border px-6 py-4 text-lg font-semibold ${
+                  status === "success"
+                    ? "border-success bg-success-muted text-success"
+                    : "border-error bg-error-muted text-error"
+                }`}
               >
-                Your question
-              </label>
-              <textarea
-                className="min-h-36 w-full resize-y rounded-2xl border border-border-strong bg-surface-muted px-6 py-5 text-xl font-medium text-foreground outline-none transition-colors placeholder:text-muted focus:border-accent-foreground focus:ring-4 focus:ring-accent"
-                id="question"
-                name="question"
-                placeholder="e.g. What was the total revenue mentioned in this document?"
-              />
-            </div>
+                {message}
+              </p>
+            ) : null}
 
             <button
-              className="flex h-16 w-full items-center justify-center rounded-2xl bg-primary px-8 text-xl font-bold text-primary-foreground transition-colors hover:bg-foreground focus:outline-none focus:ring-4 focus:ring-accent"
+              className="flex h-16 w-full items-center justify-center rounded-2xl bg-primary px-8 text-xl font-bold text-primary-foreground transition-colors hover:bg-foreground focus:outline-none focus:ring-4 focus:ring-accent disabled:cursor-not-allowed disabled:opacity-70"
+              disabled={status === "uploading"}
               type="submit"
             >
-              Ask
+              {status === "uploading" ? "Uploading..." : "Upload"}
             </button>
+
+            {status === "success" ? (
+              <Link
+                className="flex h-16 w-full items-center justify-center rounded-2xl border border-border-strong bg-surface px-8 text-xl font-bold text-foreground transition-colors hover:bg-surface-muted focus:outline-none focus:ring-4 focus:ring-accent"
+                href="/chat"
+              >
+                Go to chat
+              </Link>
+            ) : null}
           </div>
         </form>
       </section>

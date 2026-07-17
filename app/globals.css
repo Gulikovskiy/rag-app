@@ -14,6 +14,10 @@
   --primary-foreground: var(--color-white);
   --accent: var(--color-orange-100);
   --accent-foreground: var(--color-orange-700);
+  --success: var(--color-emerald-700);
+  --success-muted: var(--color-emerald-50);
+  --error: var(--color-red-700);
+  --error-muted: var(--color-red-50);
 }
 
 @theme inline {
@@ -28,6 +32,10 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-success: var(--success);
+  --color-success-muted: var(--success-muted);
+  --color-error: var(--error);
+  --color-error-muted: var(--error-muted);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
