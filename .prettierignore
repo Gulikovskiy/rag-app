@@ -1,0 +1,11 @@
+.next
+.vscode
+AGENTS.md
+CLAUDE.md
+build
+coverage
+node_modules
+out
+package-lock.json
+drizzle/meta
+public

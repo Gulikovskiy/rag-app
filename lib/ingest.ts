@@ -42,8 +42,9 @@ export async function ingestDocument(
     throw new Error("Failed to insert document");
   }
 
-  const documentChunks = splitIntoChunks(content).filter(c => c.trim().length > 0);
-
+  const documentChunks = splitIntoChunks(content).filter(
+    (c) => c.trim().length > 0,
+  );
 
   if (documentChunks.length === 0) {
     return;
