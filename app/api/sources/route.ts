@@ -5,7 +5,10 @@ export const runtime = "nodejs";
 export async function POST(request: Request) {
   const body: unknown = await request.json();
   const question =
-    typeof body === "object" && body !== null && "question" in body && typeof body.question === "string"
+    typeof body === "object" &&
+    body !== null &&
+    "question" in body &&
+    typeof body.question === "string"
       ? body.question
       : "";
 
